@@ -1,4 +1,5 @@
 import 'package:chat/providers/database_services.dart';
+import 'package:chat/screens/homeScreen.dart';
 import 'package:chat/widgets/loading.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +10,13 @@ class groupInfo extends StatefulWidget {
   String groupId;
   String groupName;
   String adminName;
+  String userName;
   groupInfo(
       {super.key,
       required this.adminName,
       required this.groupId,
-      required this.groupName});
+      required this.groupName,
+      required this.userName});
 
   @override
   State<groupInfo> createState() => _groupInfoState();
@@ -47,7 +50,48 @@ class _groupInfoState extends State<groupInfo> {
         title: Text("Group Information"),
         centerTitle: true,
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.exit_to_app)),
+          IconButton(
+              onPressed: () async {
+                showDialog(
+                  barrierDismissible: false,
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Leave"),
+                      content:
+                          const Text("Are you sure you want to leave group?"),
+                      actions: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.cancel,
+                            color: Colors.red,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await DatabaseServices(
+                                    uid: FirebaseAuth.instance.currentUser!.uid)
+                                .toggleGroupJoin(widget.groupId,
+                                    widget.userName, widget.groupName);
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => homeScreen()));
+                          },
+                          icon: Icon(
+                            Icons.done,
+                            color: Colors.green,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              icon: Icon(Icons.exit_to_app)),
         ],
       ),
       body: Container(

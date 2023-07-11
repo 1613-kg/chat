@@ -69,8 +69,9 @@ class _charScreenState extends State<charScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.groupName),
+        title: Text(widget.groupName.toUpperCase()),
         centerTitle: true,
+        backgroundColor: Colors.deepOrangeAccent,
         actions: [
           IconButton(
               onPressed: () {
@@ -81,6 +82,7 @@ class _charScreenState extends State<charScreen> {
                               groupId: widget.groupId,
                               groupName: widget.groupName,
                               adminName: admin,
+                              userName: widget.userName,
                             )));
               },
               icon: Icon(Icons.info)),

@@ -5,6 +5,7 @@ import 'package:chat/screens/searchScreen.dart';
 import 'package:chat/widgets/groupsDisplay.dart';
 import 'package:chat/widgets/loading.dart';
 import 'package:chat/widgets/noGroup.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,7 @@ class homeScreen extends StatefulWidget {
 class _homeScreenState extends State<homeScreen> {
   String email = "";
   String userName = "";
+  String profilePic = "";
   AuthService _authService = AuthService();
   Stream? groups;
   String groupName = "";
@@ -43,6 +45,15 @@ class _homeScreenState extends State<homeScreen> {
       setState(() {
         groups = snapshots;
       });
+    });
+
+    QuerySnapshot snapshot =
+        await DatabaseServices(uid: FirebaseAuth.instance.currentUser!.uid)
+            .gettingUserData(email);
+
+    setState(() {
+      profilePic = snapshot.docs[0]['profilePic'];
+      isLoading = false;
     });
   }
 
@@ -83,6 +94,7 @@ class _homeScreenState extends State<homeScreen> {
       drawer: customDrawer(
         userName: userName,
         email: email,
+        profilePic: profilePic,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -90,31 +102,34 @@ class _homeScreenState extends State<homeScreen> {
           addGroupPopUp(context);
         },
       ),
-      body: StreamBuilder(
-        stream: groups,
-        builder: ((context, AsyncSnapshot snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data['groups'] != null) {
-              if (snapshot.data['groups'].length != 0) {
-                return ListView.builder(
-                    itemCount: snapshot.data['groups'].length,
-                    itemBuilder: (context, index) {
-                      int reverseIndex =
-                          snapshot.data['groups'].length - index - 1;
-                      return groupsDisplay(
-                          groupId: getId(snapshot.data['groups'][reverseIndex]),
-                          groupName:
-                              getName(snapshot.data['groups'][reverseIndex]),
-                          userName: snapshot.data['fullName']);
-                    });
-              } else
-                return noGroup();
-            } else
-              return noGroup();
-          } else
-            return loading();
-        }),
-      ),
+      body: (isLoading)
+          ? loading()
+          : StreamBuilder(
+              stream: groups,
+              builder: ((context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  if (snapshot.data['groups'] != null) {
+                    if (snapshot.data['groups'].length != 0) {
+                      return ListView.builder(
+                          itemCount: snapshot.data['groups'].length,
+                          itemBuilder: (context, index) {
+                            int reverseIndex =
+                                snapshot.data['groups'].length - index - 1;
+                            return groupsDisplay(
+                                groupId: getId(
+                                    snapshot.data['groups'][reverseIndex]),
+                                groupName: getName(
+                                    snapshot.data['groups'][reverseIndex]),
+                                userName: snapshot.data['fullName']);
+                          });
+                    } else
+                      return noGroup();
+                  } else
+                    return noGroup();
+                } else
+                  return loading();
+              }),
+            ),
     );
   }
 

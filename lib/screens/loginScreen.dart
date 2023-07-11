@@ -1,14 +1,15 @@
 import 'package:chat/providers/database_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+import '../constants.dart';
 import '../providers/LoginData.dart';
 import '../providers/auth_services.dart';
-import '../widgets/input_info.dart';
 import '../widgets/loading.dart';
 import 'homeScreen.dart';
-import 'signupScreen.dart';
+import 'registerScreen.dart';
 
 class loginScreen extends StatefulWidget {
   loginScreen({super.key});
@@ -19,9 +20,8 @@ class loginScreen extends StatefulWidget {
 
 class _loginScreenState extends State<loginScreen> {
   final formKey = GlobalKey<FormState>();
-  TextEditingController emailController = new TextEditingController();
-
-  TextEditingController passwordController = new TextEditingController();
+  String email = "";
+  String password = "";
 
   AuthService authService = AuthService();
 
@@ -33,17 +33,17 @@ class _loginScreenState extends State<loginScreen> {
         _isLoading = true;
       });
       await authService
-          .loginWithUserNameandPassword(
-              emailController.text, passwordController.text)
+          .loginWithUserNameandPassword(email, password)
           .then((value) async {
         if (value == true) {
           QuerySnapshot snapshot = await DatabaseServices(
                   uid: FirebaseAuth.instance.currentUser!.uid)
-              .gettingUserData(emailController.text);
+              .gettingUserData(email);
           // saving the shared preference state
           await LoginData.saveUserLoggedInStatus(true);
-          await LoginData.saveUserEmailSF(emailController.text);
+          await LoginData.saveUserEmailSF(email);
           await LoginData.saveUserNameSF(snapshot.docs[0]['fullName']);
+          await LoginData.saveUserProfilePicSF(snapshot.docs[0]['profilePic']);
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => homeScreen()));
         } else {
@@ -68,58 +68,110 @@ class _loginScreenState extends State<loginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black12,
+      backgroundColor: Colors.white,
       body: (_isLoading)
           ? loading()
-          : Container(
-              margin: EdgeInsets.all(15),
-              child: Form(
-                key: formKey,
+          : SingleChildScrollView(
+              child: Container(
+                margin: EdgeInsets.fromLTRB(15, 150, 15, 30),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Groupie",
-                      style: TextStyle(color: Colors.white, fontSize: 35),
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                    InputInfo(
-                      controller: emailController,
-                      myIcon: Icons.email,
-                      labelText: "Email",
-                      toHide: false,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    InputInfo(
-                      controller: passwordController,
-                      myIcon: Icons.lock,
-                      labelText: "Password",
-                      toHide: true,
+                      "Group Chatting",
+                      style: TextStyle(color: Colors.black, fontSize: 30),
                     ),
                     SizedBox(
                       height: 50,
+                    ),
+                    Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            decoration: textInputDecoration.copyWith(
+                                labelText: "Email",
+                                labelStyle: TextStyle(color: Colors.black),
+                                prefixIcon: Icon(
+                                  Icons.mail,
+                                )),
+                            onChanged: (val) {
+                              setState(() {
+                                email = val;
+                              });
+                            },
+                            validator: (val) {
+                              return RegExp(
+                                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                      .hasMatch(val!)
+                                  ? null
+                                  : "Please enter a valid email";
+                            },
+                          ),
+                          SizedBox(
+                            height: 40,
+                          ),
+                          // password
+
+                          TextFormField(
+                            obscureText: true,
+                            decoration: textInputDecoration.copyWith(
+                                labelText: "Password",
+                                labelStyle: TextStyle(color: Colors.black),
+                                prefixIcon: Icon(
+                                  Icons.lock,
+                                )),
+                            onChanged: (val) {
+                              setState(() {
+                                password = val;
+                              });
+                            },
+                            validator: (val) {
+                              if (val!.length < 6) {
+                                return "Password must be at least 6 characters";
+                              } else {
+                                return null;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 60,
                     ),
                     ElevatedButton(
                         onPressed: () {
                           login();
                         },
-                        child: Text("Login")),
+                        child: Text(
+                          "Login",
+                          style: TextStyle(fontSize: 25),
+                        )),
                     SizedBox(
-                      height: 30,
+                      height: 210,
                     ),
-                    TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => signUpScreen()));
-                        },
-                        child: Text("New User?Click Here!"))
+                    Text.rich(
+                      TextSpan(
+                        text: "Don't have an account? ",
+                        style: TextStyle(color: Colors.black),
+                        children: <TextSpan>[
+                          TextSpan(
+                              text: "Create",
+                              style: const TextStyle(
+                                color: Colors.orange,
+                              ),
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () {
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              signUpScreen()));
+                                }),
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),

@@ -1,37 +1,83 @@
+import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat/widgets/customDrawer.dart';
 import 'package:flutter/material.dart';
 
 class profileScreen extends StatelessWidget {
   String userName;
   String email;
-  profileScreen({super.key, required this.email, required this.userName});
+  String profilePic;
+  profileScreen(
+      {super.key,
+      required this.email,
+      required this.userName,
+      required this.profilePic});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
+        title: Text(
+          "Profile",
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.purple.withOpacity(0.8),
       ),
-      drawer: customDrawer(userName: userName, email: email),
+      drawer: customDrawer(
+        userName: userName,
+        email: email,
+        profilePic: profilePic,
+      ),
       body: Container(
+        margin: EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.network(
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTIZccfNPnqalhrWev-Xo7uBhkor57_rKbkw&usqp=CAU",
-              scale: 1.0,
+            CachedNetworkImage(
+              height: 250,
+              width: 250,
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+              //radius: 150,
+              imageUrl: profilePic,
+            ),
+            SizedBox(
+              height: 50,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Username: "),
-                Text(userName),
+                Text(
+                  "Username :",
+                  style: TextStyle(fontSize: 20),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  userName,
+                  style: TextStyle(fontSize: 20),
+                ),
               ],
             ),
+            SizedBox(
+              height: 20,
+            ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Email: "),
-                Text(email),
+                Text(
+                  "Email :",
+                  style: TextStyle(fontSize: 20),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                AutoSizeText(
+                  email,
+                  style: TextStyle(fontSize: 15),
+                ),
               ],
             )
           ],

@@ -40,6 +40,10 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   shared_preferences:
+  image_picker: ^0.8.9
+  cached_network_image: ^3.2.3
+  auto_size_text: ^3.0.0
+  firebase_messaging:
 
 dev_dependencies:
   flutter_test:
