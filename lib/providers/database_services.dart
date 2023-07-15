@@ -33,6 +33,16 @@ class DatabaseServices {
     return userCollection.doc(uid).snapshots();
   }
 
+  getAllGroups() async {
+    return groupCollection.doc().snapshots();
+  }
+
+  Future<int> getGroupCount() async {
+    QuerySnapshot snapshot = await groupCollection.get();
+    int count = snapshot.size; // Get the number of documents in the snapshot
+    return count;
+  }
+
   Future createGroup(String userName, String id, String groupName) async {
     DocumentReference groupDocumentReference = await groupCollection.add({
       "groupName": groupName,
@@ -42,6 +52,7 @@ class DatabaseServices {
       "groupId": "",
       "recentMessage": "",
       "recentMessageSender": "",
+      "recentMessageSenderEmail": "",
     });
 
     await groupDocumentReference.update({
@@ -123,6 +134,7 @@ class DatabaseServices {
       "recentMessage": chatMessageData['message'],
       "recentMessageSender": chatMessageData['sender'],
       "recentMessageTime": chatMessageData['time'].toString(),
+      "recentMessageSenderEmail": chatMessageData['senderEmail']
     });
   }
 }

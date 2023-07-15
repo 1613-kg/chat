@@ -116,11 +116,13 @@ class _homeScreenState extends State<homeScreen> {
                             int reverseIndex =
                                 snapshot.data['groups'].length - index - 1;
                             return groupsDisplay(
-                                groupId: getId(
-                                    snapshot.data['groups'][reverseIndex]),
-                                groupName: getName(
-                                    snapshot.data['groups'][reverseIndex]),
-                                userName: snapshot.data['fullName']);
+                              groupId:
+                                  getId(snapshot.data['groups'][reverseIndex]),
+                              groupName: getName(
+                                  snapshot.data['groups'][reverseIndex]),
+                              userName: snapshot.data['fullName'],
+                              email: email,
+                            );
                           });
                     } else
                       return noGroup();

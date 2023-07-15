@@ -1,8 +1,10 @@
 import 'package:chat/providers/database_services.dart';
 import 'package:chat/screens/groupInfo.dart';
+import 'package:chat/widgets/sendMessage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:share/share.dart';
 
 import '../widgets/messageTile.dart';
 
@@ -10,11 +12,13 @@ class charScreen extends StatefulWidget {
   String groupId;
   String groupName;
   String userName;
+  String email;
   charScreen(
       {super.key,
       required this.groupId,
       required this.groupName,
-      required this.userName});
+      required this.userName,
+      required this.email});
 
   @override
   State<charScreen> createState() => _charScreenState();
@@ -23,7 +27,7 @@ class charScreen extends StatefulWidget {
 class _charScreenState extends State<charScreen> {
   Stream<QuerySnapshot>? chats;
   String admin = "";
-  TextEditingController messageController = TextEditingController();
+  // TextEditingController messageController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -49,92 +53,59 @@ class _charScreenState extends State<charScreen> {
     });
   }
 
-  sendMessage() {
-    if (messageController.text.isNotEmpty) {
-      Map<String, dynamic> chatMessageMap = {
-        "message": messageController.text,
-        "sender": widget.userName,
-        "time": DateTime.now().millisecondsSinceEpoch,
-      };
-
-      DatabaseServices(uid: FirebaseAuth.instance.currentUser!.uid)
-          .sendMessage(widget.groupId, chatMessageMap);
-      setState(() {
-        messageController.clear();
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.groupName.toUpperCase()),
-        centerTitle: true,
-        backgroundColor: Colors.deepOrangeAccent,
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => groupInfo(
-                              groupId: widget.groupId,
-                              groupName: widget.groupName,
-                              adminName: admin,
-                              userName: widget.userName,
-                            )));
-              },
-              icon: Icon(Icons.info)),
-        ],
-      ),
-      body: Stack(
-        children: [
-          // chat messages here
-          chatMessages(),
-          Container(
-            alignment: Alignment.bottomCenter,
-            width: MediaQuery.of(context).size.width,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              width: MediaQuery.of(context).size.width,
-              color: Colors.grey[700],
-              child: Row(children: [
-                Expanded(
-                    child: TextFormField(
-                  controller: messageController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: "Send a message...",
-                    hintStyle: TextStyle(color: Colors.white, fontSize: 16),
-                    border: InputBorder.none,
-                  ),
-                )),
-                const SizedBox(
-                  width: 12,
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.groupName.toUpperCase()),
+          centerTitle: true,
+          backgroundColor: Colors.deepOrangeAccent,
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Share.share(
+                      'Join our group using this link: ${widget.groupId}_${widget.groupName}');
+                },
+                icon: Icon(Icons.share_sharp)),
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => groupInfo(
+                                groupId: widget.groupId,
+                                groupName: widget.groupName,
+                                adminName: admin,
+                                userName: widget.userName,
+                              )));
+                },
+                icon: Icon(Icons.info)),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              SingleChildScrollView(
+                child: Container(
+                  height: screenHeight - keyboardHeight - 180,
+                  width: MediaQuery.of(context).size.width,
+                  child: chatMessages(),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    sendMessage();
-                  },
-                  child: Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Center(
-                        child: Icon(
-                      Icons.send,
-                      color: Colors.white,
-                    )),
-                  ),
-                )
-              ]),
-            ),
+              ),
+              SizedBox(
+                height: 13,
+              ),
+              sendMessage(
+                  userName: widget.userName,
+                  email: widget.email,
+                  groupId: widget.groupId),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -145,13 +116,15 @@ class _charScreenState extends State<charScreen> {
       builder: (context, AsyncSnapshot snapshot) {
         return snapshot.hasData
             ? ListView.builder(
+                physics: AlwaysScrollableScrollPhysics(),
+                shrinkWrap: true,
                 itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
                   return messageTile(
                       message: snapshot.data.docs[index]['message'],
                       sender: snapshot.data.docs[index]['sender'],
-                      sentByMe: widget.userName ==
-                          snapshot.data.docs[index]['sender']);
+                      sentByMe: widget.email ==
+                          snapshot.data.docs[index]['senderEmail']);
                 },
               )
             : Container();

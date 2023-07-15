@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class messageTile extends StatelessWidget {
@@ -51,9 +52,22 @@ class messageTile extends StatelessWidget {
             const SizedBox(
               height: 8,
             ),
-            Text(message,
-                textAlign: TextAlign.start,
-                style: const TextStyle(fontSize: 16, color: Colors.white))
+            message.contains('https://firebasestorage')
+                ? CachedNetworkImage(
+                    height: 250,
+                    width: 250,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.error,
+                      size: 150,
+                      color: Colors.red,
+                    ),
+                    //radius: 150,
+                    imageUrl: message,
+                  )
+                : Text(message,
+                    textAlign: TextAlign.start,
+                    style: const TextStyle(fontSize: 16, color: Colors.white))
           ],
         ),
       ),

@@ -16,12 +16,19 @@ class grouppListSearch extends StatefulWidget {
 
 class _grouppListSearchState extends State<grouppListSearch> {
   String userName = "";
+  String email = "";
   bool isJoined = false;
 
   getCurrentUserIdandName() async {
     await LoginData.getUserNameFromSF().then((value) {
       setState(() {
         userName = value!;
+      });
+    });
+
+    await LoginData.getUserEmailFromSF().then((value) {
+      setState(() {
+        email = value!;
       });
     });
   }
@@ -100,6 +107,7 @@ class _grouppListSearchState extends State<grouppListSearch> {
                                     groupId: data['groupId'],
                                     groupName: data['groupName'],
                                     userName: userName,
+                                    email: email,
                                   )));
                     });
                   } else {

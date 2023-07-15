@@ -38,7 +38,10 @@ class profileScreen extends StatelessWidget {
               height: 250,
               width: 250,
               placeholder: (context, url) => CircularProgressIndicator(),
-              errorWidget: (context, url, error) => Icon(Icons.error),
+              errorWidget: (context, url, error) => Icon(
+                Icons.person,
+                size: 150,
+              ),
               //radius: 150,
               imageUrl: profilePic,
             ),

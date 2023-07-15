@@ -56,6 +56,19 @@ class AuthService {
     return imageDwnUrl;
   }
 
+  Future<String> uploadChatImage(File? image) async {
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child('chatImages')
+        .child(FirebaseAuth.instance.currentUser!.uid)
+        .child('${DateTime.now().millisecondsSinceEpoch}');
+
+    UploadTask uploadTask = ref.putFile(image!);
+    TaskSnapshot snapshot = await uploadTask;
+    String imageDwnUrl = await snapshot.ref.getDownloadURL();
+    return imageDwnUrl;
+  }
+
   // signout
   Future signOut() async {
     try {

@@ -5,11 +5,13 @@ class groupsDisplay extends StatefulWidget {
   final String userName;
   final String groupId;
   final String groupName;
+  final String email;
   groupsDisplay(
       {super.key,
       required this.userName,
       required this.groupId,
-      required this.groupName});
+      required this.groupName,
+      required this.email});
 
   @override
   State<groupsDisplay> createState() => _groupsDisplayState();
@@ -24,9 +26,11 @@ class _groupsDisplayState extends State<groupsDisplay> {
             context,
             MaterialPageRoute(
                 builder: (contex) => charScreen(
-                    groupId: widget.groupId,
-                    groupName: widget.groupName,
-                    userName: widget.userName)));
+                      groupId: widget.groupId,
+                      groupName: widget.groupName,
+                      userName: widget.userName,
+                      email: widget.email,
+                    )));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),

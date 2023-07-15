@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:chat/providers/auth_services.dart';
 import 'package:chat/screens/homeScreen.dart';
@@ -8,6 +6,7 @@ import 'package:chat/screens/loginScreen.dart';
 import 'package:chat/widgets/loading.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../constants.dart';
@@ -34,12 +33,19 @@ class _signUpScreenState extends State<signUpScreen> {
 
   File? img;
   void pickImage(ImageSource src, BuildContext context) async {
-    final image = await ImagePicker().pickImage(source: src);
-    if (image != null) {
-      setState(() {
-        img = File(image.path);
-      });
-    }
+    final file = await ImagePicker().pickImage(source: src);
+    File image = File(file!.path);
+    File compressedImage = await customCompressed(image);
+
+    setState(() {
+      img = compressedImage;
+    });
+  }
+
+  Future<File> customCompressed(File imagePath) async {
+    var path = await FlutterNativeImage.compressImage(imagePath.absolute.path,
+        quality: 100, percentage: 10);
+    return path;
   }
 
   showDialogOpt(BuildContext context) {

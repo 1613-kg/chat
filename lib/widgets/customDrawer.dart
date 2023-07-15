@@ -32,7 +32,10 @@ class _customDrawerState extends State<customDrawer> {
               height: 180,
               width: 180,
               placeholder: (context, url) => CircularProgressIndicator(),
-              errorWidget: (context, url, error) => Icon(Icons.error),
+              errorWidget: (context, url, error) => Icon(
+                Icons.person,
+                size: 150,
+              ),
               //radius: 150,
               imageUrl: widget.profilePic,
             ),
@@ -95,16 +98,16 @@ class _customDrawerState extends State<customDrawer> {
                         title: const Text("Logout"),
                         content: const Text("Are you sure you want to logout?"),
                         actions: [
-                          IconButton(
+                          TextButton(
                             onPressed: () {
                               Navigator.pop(context);
                             },
-                            icon: const Icon(
-                              Icons.cancel,
-                              color: Colors.red,
+                            child: Text(
+                              "No",
+                              style: TextStyle(color: Colors.red),
                             ),
                           ),
-                          IconButton(
+                          TextButton(
                             onPressed: () async {
                               await _authService.signOut();
                               Navigator.of(context).pushAndRemoveUntil(
@@ -112,9 +115,9 @@ class _customDrawerState extends State<customDrawer> {
                                       builder: (context) => loginScreen()),
                                   (route) => false);
                             },
-                            icon: const Icon(
-                              Icons.done,
-                              color: Colors.green,
+                            child: Text(
+                              "Yes",
+                              style: TextStyle(color: Colors.green),
                             ),
                           ),
                         ],

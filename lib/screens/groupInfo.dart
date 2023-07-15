@@ -51,7 +51,7 @@ class _groupInfoState extends State<groupInfo> {
         centerTitle: true,
         actions: [
           IconButton(
-              onPressed: () async {
+              onPressed: () {
                 showDialog(
                   barrierDismissible: false,
                   context: context,
@@ -61,16 +61,16 @@ class _groupInfoState extends State<groupInfo> {
                       content:
                           const Text("Are you sure you want to leave group?"),
                       actions: [
-                        IconButton(
+                        TextButton(
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          icon: const Icon(
-                            Icons.cancel,
-                            color: Colors.red,
+                          child: Text(
+                            "No",
+                            style: TextStyle(color: Colors.red),
                           ),
                         ),
-                        IconButton(
+                        TextButton(
                           onPressed: () async {
                             await DatabaseServices(
                                     uid: FirebaseAuth.instance.currentUser!.uid)
@@ -81,9 +81,9 @@ class _groupInfoState extends State<groupInfo> {
                                 MaterialPageRoute(
                                     builder: (context) => homeScreen()));
                           },
-                          icon: Icon(
-                            Icons.done,
-                            color: Colors.green,
+                          child: Text(
+                            "Yes",
+                            style: TextStyle(color: Colors.green),
                           ),
                         ),
                       ],
